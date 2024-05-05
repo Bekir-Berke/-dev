@@ -1,0 +1,27 @@
+[
+    {
+        "urun_adi": "Elma",
+        "stok_miktari": 16345,
+        "fiyat": 10.0
+    },
+    {
+        "urun_adi": "Kiraz",
+        "stok_miktari": 30465,
+        "fiyat": 69.0
+    },
+    {
+        "urun_adi": "Karpuz",
+        "stok_miktari": 5326,
+        "fiyat": 15.0
+    },
+    {
+        "urun_adi": "\u015eeftali",
+        "stok_miktari": 14698,
+        "fiyat": 20.0
+    },
+    {
+        "urun_adi": "Erik",
+        "stok_miktari": 64957,
+        "fiyat": 45.0
+    }
+]

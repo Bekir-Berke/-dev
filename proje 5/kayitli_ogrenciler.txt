@@ -1,0 +1,7 @@
+arda, arda@gmail.com, Veri Bilimi Giriþ, Mehmet Hoca
+soner, soner@gmail.com, Veri Bilimi Giriþ, Mehmet Hoca
+ibo, ibo@gmail.com, Veri Bilimi Giriþ, Mehmet Hoca
+berke, berke@gmail.com, Veri Bilimi Giriþ, Mehmet Hoca
+memo, memo@gmail.com, Veri Bilimi Giriþ, Mehmet Hoca
+memo, memo@gmail.com, Kimya, Fatma Hoca
+soner, soner@gmail.com, Kimya, Fatma Hoca
