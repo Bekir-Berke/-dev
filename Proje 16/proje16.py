@@ -1,7 +1,6 @@
 import sys
 import os
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QMessageBox, QComboBox, QDialog
-from PyQt5.QtGui import QIcon 
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QMessageBox, QComboBox, QDialog, QListWidget, QHBoxLayout
 
 class GirisPenceresi(QWidget):
     def __init__(self):
@@ -95,15 +94,17 @@ class AnaSayfaPenceresi(QWidget):
             "Labirent": {"puan": 10}
         }
 
+        layout = QVBoxLayout()  # Doğru bir şekilde layout değişkenini tanımlıyoruz
+
         self.stok_label = QLabel("Filmler:")
         self.stok_combo = QComboBox()
         self.stok_combo.addItems(self.enstrumanlar.keys())
         self.stok_combo.currentIndexChanged.connect(self.stok_miktarini_guncelle)
 
-        self.stok_miktari_label = QLabel("IMDB:")
+        self.stok_miktari_label = QLabel("Puan:")
         self.stok_miktari_goster = QLabel(str(self.enstrumanlar[self.stok_combo.currentText()]["puan"]))
 
-        self.stok_artir_label = QLabel("IMDB Puan Güncelle:")
+        self.stok_artir_label = QLabel("Puan Güncelle:")
         self.stok_artir_input = QLineEdit()
 
         self.stok_guncelle_butonu = QPushButton("Puan Güncelle")
@@ -118,7 +119,36 @@ class AnaSayfaPenceresi(QWidget):
         self.film_ekle_butonu = QPushButton("Film Ekle")
         self.film_ekle_butonu.clicked.connect(self.film_ekle_dialog)
 
-        layout = QVBoxLayout()
+        self.izle_butonu = QPushButton("İzle")  # İzleme geçmişi için izle butonunu ekliyoruz
+        self.izle_butonu.clicked.connect(self.izleme_gecmisi_ekle)
+
+        self.liste_adi_label = QLabel("Liste Adı:")
+        self.liste_adi_input = QLineEdit()
+
+        self.filmleri_sec_label = QLabel("Filmleri Seç:")
+        self.filmleri_sec_liste = QListWidget()
+        self.filmleri_sec_liste.addItems(self.enstrumanlar.keys())
+        self.filmleri_sec_liste.setSelectionMode(QListWidget.MultiSelection)  # Çoklu seçim modu
+
+        self.liste_olustur_butonu = QPushButton("Liste Oluştur")
+        self.liste_olustur_butonu.clicked.connect(self.liste_olustur)
+
+        self.listeler = []
+
+        self.izleme_gecmisi_label = QLabel("İzleme Geçmişi:")
+        self.izleme_gecmisi = QListWidget()
+        self.listelerim_butonu = QPushButton("Listelerim")
+        self.listelerim_butonu.clicked.connect(self.listelerim_goster)
+
+    
+        layout.addWidget(self.izle_butonu)
+        layout.addWidget(self.izleme_gecmisi_label)
+        layout.addWidget(self.izleme_gecmisi)
+
+        self.setLayout(layout)
+
+
+
         layout.addWidget(self.stok_label)
         layout.addWidget(self.stok_combo)
         layout.addWidget(self.stok_miktari_label)
@@ -129,8 +159,18 @@ class AnaSayfaPenceresi(QWidget):
         layout.addWidget(self.yorumlar_butonu)
         layout.addWidget(self.yorum_yap_butonu)
         layout.addWidget(self.film_ekle_butonu)
+        layout.addWidget(self.izle_butonu)
+        layout.addWidget(self.liste_adi_label)
+        layout.addWidget(self.liste_adi_input)
+        layout.addWidget(self.filmleri_sec_label)
+        layout.addWidget(self.filmleri_sec_liste)
+        layout.addWidget(self.liste_olustur_butonu)
+        layout.addWidget(self.listelerim_butonu)
+        layout.addWidget(self.izleme_gecmisi_label)
+        layout.addWidget(self.izleme_gecmisi)
 
         self.setLayout(layout)
+        
 
     def stok_guncelle(self):
         secilen_film = self.stok_combo.currentText()
@@ -151,14 +191,42 @@ class AnaSayfaPenceresi(QWidget):
             with open("yorumlar.txt", "r") as dosya:
                 yorumlar = dosya.read()
                 QMessageBox.information(self, "Yorumlar", yorumlar)
-      
-    def yorum_yap_dialog(self):  
+
+    def yorum_yap_dialog(self):
         dialog = YorumYapDialog(self.enstrumanlar, self)
         dialog.exec_()
 
     def film_ekle_dialog(self):
         dialog = FilmEkleDialog(self.enstrumanlar, self)
         dialog.exec_()
+
+    def liste_olustur(self):
+        secilenler = self.filmleri_sec_liste.selectedItems()
+        secilen_film_adlari = [secilen.text() for secilen in secilenler]
+        liste_adi = self.liste_adi_input.text()
+        if liste_adi and secilen_film_adlari:
+            self.listeler.append({liste_adi: secilen_film_adlari})
+            QMessageBox.information(self, "Liste Oluşturuldu", f"{liste_adi} adlı liste oluşturuldu.")
+        elif not liste_adi:
+            QMessageBox.warning(self, "Liste Adı Boş", "Lütfen bir liste adı girin.")
+        else:
+            QMessageBox.warning(self, "Filmler Seçilmedi", "Lütfen en az bir film seçin.")
+    def listelerim_goster(self):
+        if self.listeler:
+            listeler_metin = ""
+            for liste in self.listeler:
+                for liste_adi, filmler in liste.items():
+                    listeler_metin += f"{liste_adi}:\n"
+                    for film in filmler:
+                        listeler_metin += f"- {film}\n"
+                    listeler_metin += "\n"
+            QMessageBox.information(self, "Listelerim", listeler_metin)
+        else:
+            QMessageBox.information(self, "Listelerim", "Henüz liste oluşturulmadı.")
+
+    def izleme_gecmisi_ekle(self):
+        secilen_film = self.stok_combo.currentText()
+        self.izleme_gecmisi.addItem(secilen_film)
 
 class YorumYapDialog(QDialog):
     def __init__(self, enstrumanlar, parent=None):
@@ -213,7 +281,7 @@ class FilmEkleDialog(QDialog):
         self.enstruman_ad_label = QLabel("Film Adı:")
         self.enstruman_ad_input = QLineEdit()
 
-        self.puan_label = QLabel("IMDB Puanı:")
+        self.puan_label = QLabel("Puan:")
         self.puan_input = QLineEdit()
 
         self.ekle_button = QPushButton("Film Ekle")
@@ -241,6 +309,8 @@ class FilmEkleDialog(QDialog):
         self.parent.stok_combo.addItem(film_ad)
         QMessageBox.information(self, "Film Eklendi", f"{film_ad} filmi başarıyla eklendi!")
         self.close()
+
+
 
 if __name__ == "__main__":
     uygulama = QApplication(sys.argv)
